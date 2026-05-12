@@ -13,7 +13,57 @@ datasource db {
 }
 
 model Users {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   username String
   password String
+  orders   Orders[]
+}
+
+model Stocks {
+  id     Int      @id @default(autoincrement())
+  title  String
+  symbol String
+  orders Orders[]
+}
+
+enum Type {
+  LIMIT
+  MARKET
+}
+
+enum Side {
+  BUY
+  SELL
+}
+
+enum Status {
+  Open
+  Filled
+  Closed
+}
+
+model Orders {
+  id              Int     @id @default(autoincrement())
+  userId          Int
+  user            Users   @relation(fields: [userId], references: [id])
+  side            Side
+  type            Type
+  stockId         Int
+  stock           Stocks  @relation(fields: [stockId], references: [id])
+  price           Decimal @db.Decimal(10, 2)
+  quantity        Int
+  filled_quantity Int
+  status          Status
+  buyFills        Fills[] @relation("BuyOrderFill")
+  sellFills       Fills[] @relation("SellOrderFill")
+}
+
+model Fills {
+  id            Int     @id @default(autoincrement())
+  stock_id      Int
+  price         Decimal @db.Decimal(10, 2)
+  buy_order_id  Int
+  sell_order_id Int
+  buyOrderId    Orders  @relation("BuyOrderFill", fields: [buy_order_id], references: [id])
+  sellOrderId   Orders  @relation("SellOrderFill", fields: [sell_order_id], references: [id])
 }
