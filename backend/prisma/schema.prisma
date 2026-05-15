@@ -12,58 +12,101 @@ datasource db {
   provider = "postgresql"
 }
 
-model Users {
-  id       Int      @id @default(autoincrement())
-  username String
+model User {
+  id       String @id @default(uuid())
+  username String @unique
   password String
-  orders   Orders[]
+
+  orders Order[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users")
 }
 
-model Stocks {
-  id     Int      @id @default(autoincrement())
+model Stock {
+  id     String @id @default(uuid())
   title  String
-  symbol String
-  orders Orders[]
+  symbol String @unique
+
+  orders Order[]
+  fills  Fill[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("stocks")
 }
 
-enum Type {
+enum OrderType {
   LIMIT
   MARKET
 }
 
-enum Side {
+enum OrderSide {
   BUY
   SELL
 }
 
-enum Status {
-  Open
-  Filled
-  Closed
+enum OrderStatus {
+  OPEN
+  FILLED
+  CANCELLED
 }
 
-model Orders {
-  id              Int     @id @default(autoincrement())
-  userId          Int
-  user            Users   @relation(fields: [userId], references: [id])
-  side            Side
-  type            Type
-  stockId         Int
-  stock           Stocks  @relation(fields: [stockId], references: [id])
-  price           Decimal @db.Decimal(10, 2)
+model Order {
+  id String @id @default(uuid())
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  stock_id String
+  stock    Stock  @relation(fields: [stock_id], references: [id])
+
+  side   OrderSide
+  type   OrderType
+  status OrderStatus @default(OPEN)
+
+  price Decimal @db.Decimal(18, 8)
+
   quantity        Int
-  filled_quantity Int
-  status          Status
-  buyFills        Fills[] @relation("BuyOrderFill")
-  sellFills       Fills[] @relation("SellOrderFill")
+  filled_quantity Int @default(0)
+
+  buy_fills  Fill[] @relation("buy_order_fill")
+  sell_fills Fill[] @relation("sell_order_fill")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([stock_id])
+  @@index([user_id])
+  @@index([side])
+  @@index([status])
+  @@map("orders")
 }
 
-model Fills {
-  id            Int     @id @default(autoincrement())
-  stock_id      Int
-  price         Decimal @db.Decimal(10, 2)
-  buy_order_id  Int
-  sell_order_id Int
-  buyOrderId    Orders  @relation("BuyOrderFill", fields: [buy_order_id], references: [id])
-  sellOrderId   Orders  @relation("SellOrderFill", fields: [sell_order_id], references: [id])
+model Fill {
+  id String @id @default(uuid())
+
+  stock_id String
+  stock    Stock  @relation(fields: [stock_id], references: [id])
+
+  price Decimal @db.Decimal(18, 8)
+
+  quantity Int
+
+  buy_order_id  String
+  sell_order_id String
+
+  buy_order Order @relation("buy_order_fill", fields: [buy_order_id], references: [id])
+
+  sell_order Order @relation("sell_order_fill", fields: [sell_order_id], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@index([stock_id])
+  @@index([buy_order_id])
+  @@index([sell_order_id])
+  @@map("fills")
 }
