@@ -48,7 +48,7 @@ export const deleteOrder = async (req: Request, res: Response) => {
 
 }
 /*
-    returns the status of an order (partially filled, success, cancellled)
+    returns the status of an order (partially filled, success, cancelled)
     ALSO RETURNS THE INDIVIDUAL FILLS OF THIS ORDER 
 */
 export const getOrders = async (req: Request, res: Response) => {

@@ -18,11 +18,16 @@ export const VerifyUser = (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: "unauthorized" })
   }
 
+  try {
+    const decodedToken = jwt.verify(token, "secret") as { id: string }
 
-  const decodedToken = jwt.verify(token, "secret") as { id: string }
+    req.userId = decodedToken.id
 
-  req.userId = decodedToken.id
+    next()
 
-  next()
 
+  } catch (error) {
+    console.error(error)
+    res.status(400).json({ message: "inavlid token" })
+  }
 }

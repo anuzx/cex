@@ -3,6 +3,7 @@ import { LoginSchema, SignupSchema } from "../validator/Schema"
 import { prisma } from "../client"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { BALANCES } from "../../engine/store/engine-store"
 
 export const handleSignup = async (req: Request, res: Response) => {
   const { success, data } = SignupSchema.safeParse(req.body)
@@ -13,7 +14,7 @@ export const handleSignup = async (req: Request, res: Response) => {
 
   const { username, password } = data
 
-  const existingUser = await prisma.users.findFirst({
+  const existingUser = await prisma.user.findFirst({
     where: {
       username
     }
@@ -25,13 +26,18 @@ export const handleSignup = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const user = await prisma.users.create({
+  const user = await prisma.user.create({
     data: {
       username,
       password: hashedPassword
     }
   })
 
+  BALANCES[user.id] = {
+    "INR": { available: 0, locked: 0 }
+  };
+
+  res.json({ message: "Signed Up!" })
 
 }
 
@@ -45,7 +51,7 @@ export const handleLogin = async (req: Request, res: Response) => {
 
   const { username, password } = data
 
-  const user = await prisma.users.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       username
     }

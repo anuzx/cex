@@ -9,7 +9,7 @@ CREATE TYPE "OrderStatus" AS ENUM ('OPEN', 'FILLED', 'CANCELLED');
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -20,7 +20,7 @@ CREATE TABLE "users" (
 
 -- CreateTable
 CREATE TABLE "stocks" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "symbol" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -31,9 +31,9 @@ CREATE TABLE "stocks" (
 
 -- CreateTable
 CREATE TABLE "orders" (
-    "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "stock_id" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "stock_id" TEXT NOT NULL,
     "side" "OrderSide" NOT NULL,
     "type" "OrderType" NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'OPEN',
@@ -48,12 +48,12 @@ CREATE TABLE "orders" (
 
 -- CreateTable
 CREATE TABLE "fills" (
-    "id" SERIAL NOT NULL,
-    "stock_id" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "stock_id" TEXT NOT NULL,
     "price" DECIMAL(18,8) NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "buy_order_id" INTEGER NOT NULL,
-    "sell_order_id" INTEGER NOT NULL,
+    "buy_order_id" TEXT NOT NULL,
+    "sell_order_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "fills_pkey" PRIMARY KEY ("id")
